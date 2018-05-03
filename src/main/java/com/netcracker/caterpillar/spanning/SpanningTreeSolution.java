@@ -3,11 +3,24 @@ package com.netcracker.caterpillar.spanning;
 public class SpanningTreeSolution {
 
     public static final int MODULO = 1000000007;
+    public static final int MODULO_UPPER_BOUND_POWER = getModuloUpperBoundPower();
+    public static final int SHIFT_SIZE = 63 - MODULO_UPPER_BOUND_POWER;
+
+    public static int getModuloUpperBoundPower() {
+        int power = 0;
+        int upperBound = 1;
+        while (upperBound < MODULO) {
+            upperBound = upperBound << 1;
+            power++;
+        }
+        System.out.println(upperBound + " " + power);
+        return power;
+    }
 
     public static void main(String[] args) {
 
-        int[] inputArray = {0, 100, 0};
-//        int[] inputArray = {0, 3, 0, 1, 2, 1, 3, 1, 0};
+//        int[] inputArray = {0, 100, 0};
+        int[] inputArray = {0, 3, 0, 1, 2, 1, 3, 1, 0};
         int spanningTreeAmount = getSpanningTreeAmount(inputArray);
         System.out.println(spanningTreeAmount);
     }
@@ -26,36 +39,17 @@ public class SpanningTreeSolution {
     }
 
     private static final int twoInPower(int power) {
-//        return 1 << power;
-//        return powerModular(2, power, 1000000007);
-        int result = 1;
-        for (int i = 0; i < power; i++) {
-            result = (result << 1) % MODULO;
+        if (power < SHIFT_SIZE) {
+            return 1 << power;
+        } else {
+            long result = 1;
+            int remainingPower = power;
+            while (remainingPower > SHIFT_SIZE) {
+                result = (result << SHIFT_SIZE) % MODULO;
+                remainingPower -= SHIFT_SIZE;
+            }
+            result = (result << remainingPower) % MODULO;
+            return Long.valueOf(result).intValue();
         }
-        return result;
-    }
-
-    /* Iterative Function to calculate
-   (x^y)%p in O(log y) */
-    private static int powerModular(int x, int y, int p) {
-        // Initialize result
-        int res = 1;
-
-        // Update x if it is more
-        // than or equal to p
-        x = x % p;
-
-        while (y > 0) {
-            // If y is odd, multiply x
-            // with result
-            if ((y & 1) == 1)
-                res = (res * x) % p;
-
-            // y must be even now
-            // y = y / 2
-            y = y >> 1;
-            x = (x * x) % p;
-        }
-        return res;
     }
 }
